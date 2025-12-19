@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "159567769954",
+    "project_id": "bibliospace-app",
+    "storage_bucket": "bibliospace-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:159567769954:android:fdf20a143d20c89649bc3b",
+        "android_client_info": {
+          "package_name": "com.example.bibliospace"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKtJu7zjjt3vRw9o0bULinim1smeWo9gc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
