@@ -1,9 +1,7 @@
-import 'package:bibliospace/core/configs/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/auth/auth_bloc.dart';
-import '../../../core/utils/validators.dart';
-import '../../../ui/widgets/custom_textfield.dart';
+import '../../widgets/custom_textfield.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,104 +11,120 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  late final TextEditingController _nameController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppTheme.textDark),
-          onPressed: () => Navigator.pop(context),
-        ),
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {
-          if (state is AuthSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("Akun ${state.user.displayName} berhasil dibuat!")),
-            );
-            Navigator.pop(context);
-          }
-          if (state is AuthFailure) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.error), backgroundColor: Colors.red),
-            );
-          }
-        },
-        builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Buat Akun Baru",
-                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppTheme.textDark),
-                  ),
-                  const Text(
-                    "Mulai perjalanan membaca Anda hari ini.",
-                    style: TextStyle(fontSize: 14, color: AppTheme.textLight),
-                  ),
-                  const SizedBox(height: 30),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Buat Akun\nBaru',
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+              ),
+              const SizedBox(height: 30),
+              
+              CustomTextField(
+                label: 'Nama Lengkap',
+                controller: _nameController,
+                hintText: 'Nama anda',
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: 'Email',
+                controller: _emailController,
+                hintText: 'Email anda',
+                keyboardType: TextInputType.emailAddress,
+              ),
+              const SizedBox(height: 16),
+              CustomTextField(
+                label: 'Password',
+                controller: _passwordController,
+                hintText: 'Buat password',
+                isPassword: true,
+              ),
+              
+              const SizedBox(height: 30),
+              
+              BlocConsumer<AuthBloc, AuthState>(
+                listener: (context, state) {
+                  if (state is AuthFailure) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(state.error), backgroundColor: Colors.red),
+                    );
+                  } else if (state is AuthSuccess) {
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Registrasi Berhasil! Silakan Login.")),
+                    );
+                  }
+                },
+                builder: (context, state) {
+                  if (state is AuthLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                  CustomTextField(
-                    controller: _nameController,
-                    label: "Nama Lengkap",
-                    icon: Icons.person_outline,
-                    validator: Validators.validateName,
-                  ),
-                  const SizedBox(height: 20),
-                  CustomTextField(
-                    controller: _emailController,
-                    label: "Email",
-                    icon: Icons.email_outlined,
-                    validator: Validators.validateEmail,
-                  ),
-                  const SizedBox(height: 20),
-                  CustomTextField(
-                    controller: _passwordController,
-                    label: "Password",
-                    icon: Icons.lock_outline,
-                    isObscure: true,
-                    validator: Validators.validatePassword,
-                  ),
-                  
-                  const SizedBox(height: 40),
-
-                  if (state is AuthLoading)
-                    const Center(child: CircularProgressIndicator())
-                  else
-                    SizedBox(
-                      width: double.infinity,
-                      height: 55,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            context.read<AuthBloc>().add(
-                                  AuthRegisterRequested(
-                                    name: _nameController.text,
-                                    email: _emailController.text,
-                                    password: _passwordController.text,
-                                  ),
-                                );
-                          }
-                        },
-                        child: const Text("Daftar Sekarang"),
+                  return SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        context.read<AuthBloc>().add(
+                          AuthRegisterRequested(
+                            name: _nameController.text,
+                            email: _emailController.text,
+                            password: _passwordController.text,
+                          ),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue[900],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Daftar Sekarang',
+                        style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                     ),
-                ],
+                  );
+                },
               ),
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }

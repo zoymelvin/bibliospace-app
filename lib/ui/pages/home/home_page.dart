@@ -1,3 +1,4 @@
+import 'package:bibliospace/ui/pages/detail/book_detail_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/book/book_bloc.dart'; 
@@ -76,25 +77,16 @@ class _HomePageState extends State<HomePage> {
       
       body: BlocBuilder<BookBloc, BookState>(
         builder: (context, state) {
-          
-          // 1. Loading Awal
           if (state.status == BookStatus.loading && state.filteredBooks.isEmpty) {
             return const Center(child: CircularProgressIndicator());
           }
-
-          // 2. Error Awal
           if (state.status == BookStatus.failure && state.filteredBooks.isEmpty) {
             return Center(child: Text('Error: ${state.errorMessage}'));
           }
-
           final displayBooks = state.filteredBooks;
-
-          // 3. Kosong
           if (state.status == BookStatus.success && displayBooks.isEmpty) {
              return const Center(child: Text('Tidak ada buku ditemukan'));
           }
-
-          // 4. Sukses dengan Data
           return NotificationListener<ScrollNotification>(
             onNotification: (ScrollNotification scrollInfo) {
               if (scrollInfo.metrics.pixels >= scrollInfo.metrics.maxScrollExtent * 0.7) {
@@ -104,8 +96,7 @@ class _HomePageState extends State<HomePage> {
             },
             child: CustomScrollView(
               slivers: [
-                
-                // HEADER 
+
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -138,8 +129,16 @@ class _HomePageState extends State<HomePage> {
                       (context, index) {
                         final book = displayBooks[index];
                         return BookCard(
-                          book: book, 
-                          //ontap
+                          book: book,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => BookDetailPage(book: book),
+                              ),
+                            );
+                          }, 
+                          
                         );
                       },
                       childCount: displayBooks.length,
@@ -147,7 +146,6 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // LOADING 
                 if (!state.hasReachedMax)
                   const SliverToBoxAdapter(
                     child: Padding(
