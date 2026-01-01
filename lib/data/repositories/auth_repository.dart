@@ -16,6 +16,20 @@ class AuthRepository {
   Stream<User?> get user => _firebaseAuth.authStateChanges();
   User? get currentUser => _firebaseAuth.currentUser;
 
+  // --- STREAMS ---
+
+  Stream<QuerySnapshot> getFavoritesStream() {
+    final uid = currentUser?.uid;
+    if (uid == null) return const Stream.empty();
+
+    return _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorites')
+        .orderBy('created_at', descending: true)
+        .snapshots();
+  }
+
   Stream<QuerySnapshot> getUserTransactionsStream() {
     final uid = currentUser?.uid;
     if (uid == null) return const Stream.empty();
@@ -39,6 +53,8 @@ class AuthRepository {
         .where('book_title', isEqualTo: bookTitle)
         .snapshots();
   }
+
+  // --- TRANSACTIONS ---
 
   Future<void> addTransaction({
     required BookModel book,
@@ -79,7 +95,7 @@ class AuthRepository {
         .collection('transactions')
         .add(transactionData);
 
-    //  Buat Notifikasi
+    // Buat Notifikasi
     String notifTitle = isRent ? "Sewa Berhasil" : "Pembelian Berhasil";
     String notifBody = isRent 
         ? "Buku \"${book.title}\" berhasil disewa selama $duration hari."
@@ -97,6 +113,8 @@ class AuthRepository {
       'created_at': FieldValue.serverTimestamp(),
     });
   }
+
+  // --- AUTHENTICATION ---
 
   Future<User?> signUp({required String email, required String password, required String name}) async {
     try {
@@ -116,6 +134,72 @@ class AuthRepository {
     }
   }
 
+  Future<User?> signIn({required String email, required String password}) async {
+    try {
+      UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      return result.user;
+    } on FirebaseAuthException catch (e) {
+      throw Exception(e.message);
+    }
+  }
+
+  Future<void> signOut() async {
+    await _firebaseAuth.signOut();
+  }
+
+  // --- FAVORITES LOGIC ---
+
+  Future<bool> isBookFavorite(String title) async {
+    final uid = currentUser?.uid;
+    if (uid == null) return false;
+
+    // Cek dokumen menggunakan JUDUL BUKU sebagai ID
+    final doc = await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorites')
+        .doc(title) // <--- Pakai Title
+        .get();
+    
+    return doc.exists;
+  }
+
+  Future<void> addFavorite(BookModel book) async {
+    final uid = currentUser?.uid;
+    if (uid == null) return;
+
+    // Gunakan .doc(book.id).set() agar ID dokumen = ID Buku
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorites')
+        .doc(book.title) 
+        .set({
+      'title': book.title,
+      'author': book.author,
+      'cover_url': book.coverUrl,
+      'genre': book.genre,
+      'synopsis': book.synopsis,
+      'price': book.price,
+      'rating': 4.5, 
+      'created_at': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> removeFavorite(String title) async {
+    final uid = currentUser?.uid;
+    if (uid == null) return;
+
+    await _firestore
+        .collection('users')
+        .doc(uid)
+        .collection('favorites')
+        .doc(title)
+        .delete();
+  }
+
+  // --- NOTIFICATION CHECKER ---
+
   Future<void> checkAndNotifyExpiredRentals() async {
     final uid = currentUser?.uid;
     if (uid == null) return;
@@ -132,7 +216,6 @@ class AuthRepository {
       if (data['return_date'] == null) continue;
 
       final returnDate = DateTime.parse(data['return_date']);
-
       bool isNotified = data['expiry_notified'] ?? false;
 
       if (returnDate.isBefore(now) && !isNotified) {
@@ -159,16 +242,4 @@ class AuthRepository {
     }
   }
 
-  Future<User?> signIn({required String email, required String password}) async {
-    try {
-      UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
-      return result.user;
-    } on FirebaseAuthException catch (e) {
-      throw Exception(e.message);
-    }
-  }
-
-  Future<void> signOut() async {
-    await _firebaseAuth.signOut();
-  }
-}
+} 

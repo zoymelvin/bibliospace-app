@@ -1,3 +1,4 @@
+import 'package:bibliospace/blocs/favorite/favorite_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -41,6 +42,11 @@ class MyApp extends StatelessWidget {
           ),
           BlocProvider(
             create: (context) => TransactionBloc(
+              authRepository: context.read<AuthRepository>(),
+            ),
+          ),
+          BlocProvider(
+            create: (context) => FavoriteBloc(
               authRepository: context.read<AuthRepository>(),
             ),
           ),
