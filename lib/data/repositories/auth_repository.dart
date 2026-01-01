@@ -79,7 +79,7 @@ class AuthRepository {
         .collection('transactions')
         .add(transactionData);
 
-    //  Buat Notifikasi Otomatis
+    //  Buat Notifikasi
     String notifTitle = isRent ? "Sewa Berhasil" : "Pembelian Berhasil";
     String notifBody = isRent 
         ? "Buku \"${book.title}\" berhasil disewa selama $duration hari."
@@ -113,6 +113,49 @@ class AuthRepository {
       return result.user;
     } on FirebaseAuthException catch (e) {
       throw Exception(e.message);
+    }
+  }
+
+  Future<void> checkAndNotifyExpiredRentals() async {
+    final uid = currentUser?.uid;
+    if (uid == null) return;
+
+    final now = DateTime.now();
+    final userRef = _firestore.collection('users').doc(uid);
+    final snapshot = await userRef.collection('transactions')
+        .where('type', isEqualTo: 'rent')
+        .get();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+
+      if (data['return_date'] == null) continue;
+
+      final returnDate = DateTime.parse(data['return_date']);
+
+      bool isNotified = data['expiry_notified'] ?? false;
+
+      if (returnDate.isBefore(now) && !isNotified) {
+
+        String fullTitle = data['book_title'] ?? 'Buku';
+        String displayTitle = fullTitle;
+
+        if (fullTitle.length > 20) {
+          displayTitle = "${fullTitle.substring(0, 20)}...";
+        }
+        displayTitle = displayTitle.toUpperCase();
+
+        await userRef.collection('notifications').add({
+          'title': "Masa Sewa Habis",
+          'body': "Masa sewa \"$displayTitle\" berakhir. Sewa lagi jika ingin lanjut.", 
+          'type': 'alert', 
+          'is_read': false,
+          'created_at': FieldValue.serverTimestamp(),
+          'book_id': data['book_id'], 
+        });
+
+        await doc.reference.update({'expiry_notified': true});
+      }
     }
   }
 

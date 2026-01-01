@@ -89,7 +89,7 @@ class CollectionBookCard extends StatelessWidget {
                 else if (isExpired)
                   _buildBadge("SEWA BERAKHIR", Colors.red)
                 else
-                  _buildBadge("SEWA AKTIF", Colors.orange),
+                  _buildBadge("SEWA AKTIF", const Color.fromARGB(255, 110, 137, 224)),
 
                 const SizedBox(height: 8),
                 
@@ -135,7 +135,7 @@ class CollectionBookCard extends StatelessWidget {
                       Icon(
                         isPurchase ? Icons.calendar_today : Icons.timer,
                         size: 14,
-                        color: isPurchase ? Colors.green : Colors.orange,
+                        color: isPurchase ? Colors.green : const Color.fromARGB(255, 110, 137, 224),
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -143,7 +143,7 @@ class CollectionBookCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: isPurchase ? Colors.green[700] : Colors.orange[800],
+                          color: isPurchase ? Colors.green[700] : const Color.fromARGB(255, 110, 137, 224),
                         ),
                       ),
                     ],
