@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/transaction/transaction_bloc.dart';
 import '../../../blocs/transaction/transaction_event.dart';
 import '../../../blocs/transaction/transaction_state.dart';
+import '../../../blocs/favorite/favorite_bloc.dart'; 
+import '../../../blocs/favorite/favorite_event.dart'; 
+
 import '../../../data/models/book_model.dart';
 import '../../../data/repositories/auth_repository.dart';
 import '../../widgets/transaction_bottom_sheet.dart'; 
@@ -19,14 +22,38 @@ class BookDetailPage extends StatefulWidget {
 }
 
 class _BookDetailPageState extends State<BookDetailPage> {
-  bool isWatchlist = false;
+  bool isFavorite = false; 
 
-  void _toggleWatchlist() {
-    setState(() => isWatchlist = !isWatchlist);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(isWatchlist ? "Disimpan ke Watchlist" : "Dihapus dari Watchlist"),
-      duration: const Duration(milliseconds: 500),
-    ));
+  @override
+  void initState() {
+    super.initState();
+    _checkIfFavorite();
+  }
+
+ Future<void> _checkIfFavorite() async {
+    final status = await context.read<AuthRepository>().isBookFavorite(widget.book.title);
+    if (mounted) {
+      setState(() {
+        isFavorite = status;
+      });
+    }
+  }
+
+ void _toggleFavorite() {
+    if (isFavorite) {
+      context.read<FavoriteBloc>().add(RemoveFromFavorite(widget.book.title));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Dihapus dari Favorit"), 
+        duration: Duration(milliseconds: 600)
+      ));
+    } else {
+      context.read<FavoriteBloc>().add(AddToFavorite(widget.book));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Ditambahkan ke Favorit"), 
+        duration: Duration(milliseconds: 600)
+      ));
+    }
+    setState(() => isFavorite = !isFavorite);
   }
 
   void _showTransactionPopup({required bool isRent}) {
@@ -142,7 +169,11 @@ class _BookDetailPageState extends State<BookDetailPage> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              BookInfoSection(book: widget.book, isWatchlist: isWatchlist, onWatchlistTap: _toggleWatchlist),
+                              BookInfoSection(
+                                book: widget.book, 
+                                isWatchlist: isFavorite,
+                                onWatchlistTap: _toggleFavorite
+                              ),
                               
                               if (isPurchased)
                                 Container(

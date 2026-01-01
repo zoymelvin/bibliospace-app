@@ -84,15 +84,26 @@ class BookInfoSection extends StatelessWidget {
             ),
 
             // Watchlist Button
-            InkWell(
-              onTap: onWatchlistTap,
-              borderRadius: BorderRadius.circular(50),
-              child: Padding(
-                padding: const EdgeInsets.all(4.0),
-                child: Icon(
-                  isWatchlist ? Icons.bookmark : Icons.bookmark_border,
-                  color: isWatchlist ? AppTheme.primaryBlue : Colors.grey,
-                  size: 24,
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onWatchlistTap,
+                borderRadius: BorderRadius.circular(50),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: isWatchlist ? const Color.fromARGB(255, 227, 242, 253) : const Color.fromARGB(255, 245, 245, 245),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isWatchlist ? const Color.fromARGB(255, 100, 181, 246) : Colors.transparent,
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    isWatchlist ? Icons.bookmark_border_rounded : Icons.bookmark_border,
+                    color: isWatchlist ? const Color.fromARGB(255, 13, 71, 161) : Colors.grey,
+                    size: 24,
+                  ),
                 ),
               ),
             ),
