@@ -1,5 +1,7 @@
+import 'package:bibliospace/data/repositories/auth_repository.dart';
 import 'package:bibliospace/ui/pages/collection/collection_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_page.dart';
 
 class MainPage extends StatefulWidget {
@@ -17,6 +19,14 @@ class _MainPageState extends State<MainPage> {
     const Center(child: Text('Halaman Wishlist')), 
     const Center(child: Text('Halaman Profile')), 
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthRepository>().checkAndNotifyExpiredRentals();
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {

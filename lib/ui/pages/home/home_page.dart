@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/book/book_bloc.dart'; 
 import '../../widgets/book_card.dart';
 import '../../widgets/custom_dropdown.dart';
+import '../../widgets/notification_bell.dart';
 import '../search/search_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -67,10 +68,9 @@ class _HomePageState extends State<HomePage> {
               Navigator.push(context, MaterialPageRoute(builder: (c) => const SearchPage()));
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.notifications_none_rounded, color: Colors.black),
-            onPressed: () {},
-          ),
+
+          const NotificationBell(),
+          
           const SizedBox(width: 8),
         ],
       ),
@@ -96,7 +96,6 @@ class _HomePageState extends State<HomePage> {
             },
             child: CustomScrollView(
               slivers: [
-
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
@@ -115,7 +114,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
 
-                // GRID BUKU
+                // Grid Buku
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   sliver: SliverGrid(
@@ -138,7 +137,6 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                           }, 
-                          
                         );
                       },
                       childCount: displayBooks.length,
