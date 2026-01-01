@@ -9,6 +9,7 @@ import 'blocs/auth/auth_bloc.dart';
 import 'blocs/book/book_bloc.dart';
 import 'ui/pages/auth/login_page.dart';
 import 'ui/pages/home/main_page.dart'; 
+import 'blocs/transaction/transaction_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,11 @@ class MyApp extends StatelessWidget {
             create: (context) => BookBloc(
               bookRepository: context.read<BookRepository>(),
             )..add(FetchBooks()), 
+          ),
+          BlocProvider(
+            create: (context) => TransactionBloc(
+              authRepository: context.read<AuthRepository>(),
+            ),
           ),
         ],
         child: MaterialApp(
