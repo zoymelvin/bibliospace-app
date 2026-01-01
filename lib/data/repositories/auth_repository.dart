@@ -33,9 +33,6 @@ class AuthRepository {
           'uid': result.user!.uid,
           'name': name,
           'email': email,
-          'balance': 0,
-          'wishlist': [],
-          'borrowed_books': [],
           'created_at': FieldValue.serverTimestamp(),
         });
       }

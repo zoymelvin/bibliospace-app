@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
 
 class CustomTextField extends StatelessWidget {
-  final TextEditingController controller;
   final String label;
-  final IconData icon;
-  final bool isObscure;
-  final String? Function(String?)? validator;
+  final TextEditingController controller;
+  final String hintText;
+  final bool isPassword;
+  final TextInputType keyboardType;
+  final IconData? icon;
 
   const CustomTextField({
     super.key,
-    required this.controller,
     required this.label,
-    required this.icon,
-    this.isObscure = false,
-    this.validator,
+    required this.controller,
+    this.hintText = '',
+    this.isPassword = false,
+    this.keyboardType = TextInputType.text,
+    this.icon,
   });
 
   @override
@@ -23,16 +25,36 @@ class CustomTextField extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.w500, color: Color(0xFF2D3748)),
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: Colors.black87,
+          ),
         ),
         const SizedBox(height: 8),
         TextFormField(
           controller: controller,
-          obscureText: isObscure,
-          validator: validator,
+          obscureText: isPassword,
+          keyboardType: keyboardType,
           decoration: InputDecoration(
-            hintText: "Masukkan $label",
-            prefixIcon: Icon(icon, color: const Color(0xFF718096)),
+            hintText: hintText,
+            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            prefixIcon: icon != null ? Icon(icon, color: Colors.grey) : null,
+            filled: true,
+            fillColor: Colors.grey[50],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.blue),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           ),
         ),
       ],
