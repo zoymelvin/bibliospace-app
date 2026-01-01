@@ -1,5 +1,6 @@
+import 'package:bibliospace/ui/pages/collection/collection_page.dart';
 import 'package:flutter/material.dart';
-import 'home_page.dart'; // Pastikan import ini benar
+import 'home_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -12,7 +13,7 @@ class _MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
   final List<Widget> _pages = [
     const HomePage(),
-    const Center(child: Text('Halaman Explore')), 
+    const CollectionPage(),
     const Center(child: Text('Halaman Wishlist')), 
     const Center(child: Text('Halaman Profile')), 
   ];
@@ -38,15 +39,15 @@ class _MainPageState extends State<MainPage> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_rounded),
-            label: 'Home',
+            label: 'Beranda',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.travel_explore_sharp),
-            label: 'Category',
+            icon: Icon(Icons.collections_bookmark_outlined),
+            label: 'Koleksi',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.bookmark_border_rounded),
-            label: 'Wishlist',
+            label: 'Favorit',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline_rounded),
