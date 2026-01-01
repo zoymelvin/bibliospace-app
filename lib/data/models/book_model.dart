@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class BookModel extends Equatable {
+  final String id;
   final String title;
   final String author;
   final String synopsis;
@@ -10,6 +11,7 @@ class BookModel extends Equatable {
   final int price;
 
   const BookModel({
+    required this.id,
     required this.title,
     required this.author,
     required this.synopsis,
@@ -20,13 +22,21 @@ class BookModel extends Equatable {
   });
 
   factory BookModel.fromJson(Map<String, dynamic> json) {
-    // 1. Ambil Penulis
+
+    // ID
+    String bookId = json['id'] != null ? json['id'].toString() : 'id_tidak_diketahui';
+    
+    // Penulis
     String authorName = 'Penulis Tidak Diketahui';
-    if (json['author'] != null && json['author'] is Map) {
-      authorName = json['author']['name'] ?? authorName;
+    if (json['author'] != null) {
+       if (json['author'] is Map) {
+          authorName = json['author']['name'] ?? authorName;
+       } else if (json['author'] is String) {
+          authorName = json['author'];
+       }
     }
 
-    // 2. Ambil Harga
+    // Harga 
     int parsedPrice = 0;
     try {
       if (json['details'] != null && json['details']['price'] != null) {
@@ -38,22 +48,37 @@ class BookModel extends Equatable {
       parsedPrice = 0;
     }
 
-    // 3. Ambil Tahun Terbit
+    // Tahun Terbit
     int year = 2024;
     try {
        if (json['details'] != null && json['details']['published_date'] != null) {
          String date = json['details']['published_date'].toString();
-         year = int.tryParse(date.split(' ').last) ?? 2024;
+         RegExp regExp = RegExp(r'\d{4}');
+         Match? match = regExp.firstMatch(date);
+         if (match != null) {
+           year = int.parse(match.group(0)!);
+         }
        }
     } catch (_) {}
 
+    // Genre
+    String genreName = 'Umum';
+    if (json['category'] != null) {
+        if (json['category'] is Map) {
+            genreName = json['category']['name'] ?? 'Umum';
+        } else if (json['category'] is String) {
+            genreName = json['category'];
+        }
+    }
+
     return BookModel(
+      id: bookId,
       title: json['title'] ?? 'Tanpa Judul',
       author: authorName,
       synopsis: json['summary'] ?? 'Tidak ada sinopsis.',
       coverUrl: json['cover_image'] ?? 'https://via.placeholder.com/150',
       publicationYear: year,
-      genre: (json['category'] != null) ? json['category']['name'] : 'Umum',
+      genre: genreName,
       price: parsedPrice,
     );
   }
