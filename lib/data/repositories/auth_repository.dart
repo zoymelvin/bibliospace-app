@@ -16,8 +16,6 @@ class AuthRepository {
   Stream<User?> get user => _firebaseAuth.authStateChanges();
   User? get currentUser => _firebaseAuth.currentUser;
 
-  // --- STREAMS ---
-
   Stream<QuerySnapshot> getFavoritesStream() {
     final uid = currentUser?.uid;
     if (uid == null) return const Stream.empty();
@@ -53,8 +51,6 @@ class AuthRepository {
         .where('book_title', isEqualTo: bookTitle)
         .snapshots();
   }
-
-  // --- TRANSACTIONS ---
 
   Future<void> addTransaction({
     required BookModel book,
@@ -114,7 +110,6 @@ class AuthRepository {
     });
   }
 
-  // --- AUTHENTICATION ---
 
   Future<User?> signUp({required String email, required String password, required String name}) async {
     try {
@@ -143,22 +138,54 @@ class AuthRepository {
     }
   }
 
+  Future<void> updateName(String newName) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) throw Exception("User tidak login");
+
+    try {
+      await user.updateDisplayName(newName);
+      await user.reload();
+
+      await _firestore.collection('users').doc(user.uid).update({
+        'name': newName,
+      });
+    } catch (e) {
+      throw Exception("Gagal ganti nama: $e");
+    }
+  }
+
+  Future<void> updatePassword(String newPassword) async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) throw Exception("User tidak login");
+
+    try {
+      await user.updatePassword(newPassword);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        throw Exception("Demi keamanan, silakan Logout dan Login ulang sebelum ganti password.");
+      }
+      throw Exception(e.message);
+    } catch (e) {
+      throw Exception("Gagal ganti password: $e");
+    }
+  }
+
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
   }
 
-  // --- FAVORITES LOGIC ---
+
+  //FAVORITES LOGIC
 
   Future<bool> isBookFavorite(String title) async {
     final uid = currentUser?.uid;
     if (uid == null) return false;
 
-    // Cek dokumen menggunakan JUDUL BUKU sebagai ID
     final doc = await _firestore
         .collection('users')
         .doc(uid)
         .collection('favorites')
-        .doc(title) // <--- Pakai Title
+        .doc(title)
         .get();
     
     return doc.exists;
@@ -167,8 +194,6 @@ class AuthRepository {
   Future<void> addFavorite(BookModel book) async {
     final uid = currentUser?.uid;
     if (uid == null) return;
-
-    // Gunakan .doc(book.id).set() agar ID dokumen = ID Buku
     await _firestore
         .collection('users')
         .doc(uid)
@@ -198,7 +223,7 @@ class AuthRepository {
         .delete();
   }
 
-  // --- NOTIFICATION CHECKER ---
+  // NOTIFICATION
 
   Future<void> checkAndNotifyExpiredRentals() async {
     final uid = currentUser?.uid;

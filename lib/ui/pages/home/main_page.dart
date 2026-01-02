@@ -1,6 +1,7 @@
 import 'package:bibliospace/data/repositories/auth_repository.dart';
 import 'package:bibliospace/ui/pages/collection/collection_page.dart';
 import 'package:bibliospace/ui/pages/favorite/favorite_page.dart';
+import 'package:bibliospace/ui/pages/profile/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'home_page.dart';
@@ -18,7 +19,7 @@ class _MainPageState extends State<MainPage> {
     const HomePage(),
     const CollectionPage(),
     const FavoritePage(), 
-    const Center(child: Text('Halaman Profile')), 
+    const ProfilePage(), 
   ];
 
   @override
