@@ -44,6 +44,7 @@ dependencies:
   dio: ^5.9.0
   cached_network_image: ^3.4.1
   lottie: ^3.3.2
+  stream_transform: ^2.1.1
 
 dev_dependencies:
   flutter_test:
