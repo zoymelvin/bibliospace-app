@@ -1,4 +1,5 @@
 import 'package:bibliospace/ui/pages/detail/book_detail_page.dart';
+import 'package:bibliospace/ui/widgets/custom_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../blocs/book/book_bloc.dart'; 
@@ -78,7 +79,7 @@ class _HomePageState extends State<HomePage> {
       body: BlocBuilder<BookBloc, BookState>(
         builder: (context, state) {
           if (state.status == BookStatus.loading && state.filteredBooks.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const CustomLoading(size: 150);
           }
           if (state.status == BookStatus.failure && state.filteredBooks.isEmpty) {
             return Center(child: Text('Error: ${state.errorMessage}'));
