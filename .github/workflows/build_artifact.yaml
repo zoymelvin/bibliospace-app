@@ -2,7 +2,7 @@ name: Build & Deploy
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main"]
 
 jobs:
   build_and_deploy:
@@ -18,8 +18,18 @@ jobs:
 
       - uses: subosito/flutter-action@v2
         with:
-          channel: 'master'   
+          channel: 'master'
           cache: true
+
+
+      - name: Create Dummy Keystore for CI
+        run: |
+          echo "storeFile=release-keystore.jks" > android/key.properties
+          echo "storePassword=password123" >> android/key.properties
+          echo "keyAlias=upload" >> android/key.properties
+          echo "keyPassword=password123" >> android/key.properties
+          
+          keytool -genkey -v -keystore android/app/release-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload -dname "CN=Android Debug,O=Android,C=US" -storepass password123 -keypass password123
 
       - name: Install Dependencies
         run: flutter pub get
