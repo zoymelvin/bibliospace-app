@@ -12,10 +12,12 @@ import 'blocs/book/book_bloc.dart';
 import 'ui/pages/auth/login_page.dart';
 import 'ui/pages/home/main_page.dart'; 
 import 'blocs/transaction/transaction_bloc.dart';
+import 'package:bibliospace/core/utils/app_bloc_observer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  Bloc.observer = AppBlocObserver();
   runApp(const MyApp());
 }
 
