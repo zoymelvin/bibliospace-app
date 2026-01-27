@@ -1,4 +1,4 @@
-name: Build Artifact
+name: Build & Deploy
 
 on:
   push:
@@ -6,32 +6,35 @@ on:
       - feat/animation-login
 
 jobs:
-  build:
+  build_and_deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      
-      - name: Set up JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: 17
+      - uses: actions/checkout@v3
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/setup-java@v3
         with:
-          channel: stable
-      
+          distribution: 'zulu'
+          java-version: '17'
 
-      - name: Install dependencies
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.19.2'
+          channel: 'stable'
+
+      - name: Install Dependencies
         run: flutter pub get
 
+      - name: Run Tests
+        run: flutter test
 
       - name: Build APK
-        run: flutter build apk
+        run: flutter build apk --release
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload to Firebase
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
         with:
-          name: release-apk
-          path: build/app/outputs/apk/release/app-release.apk
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          token: ${{ secrets.FIREBASE_TOKEN }}
+          groups: testers
+          file: build/app/outputs/flutter-apk/app-release.apk
